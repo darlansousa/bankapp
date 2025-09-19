@@ -1,0 +1,46 @@
+server:
+  port: ${SERVER_PORT:8081}
+
+spring:
+  application:
+    name: bankapp
+  data:
+    jackson:
+      property-naming-strategy: SNAKE_CASE
+  kafka:
+    bootstrap-servers: ${KAFKA_HOST:localhost}:9094
+    consumer:
+      group-id: bankapp-app
+
+security:
+  jwt:
+    secret: "MD+Pr6fgCeLJ3eS4SDM7oQf5DetV7Y7FIhPjEsaqFSM="
+    expiration: 3600000
+    refresh-expiration: 1209600000
+
+management:
+  endpoint:
+    health:
+      show-details: always
+      group.liveness.include: livenessProbe,db
+  health:
+    probes.enabled: true
+    binders.enabled: false
+    diskspace.enabled: false
+  endpoints:
+    web:
+      exposure:
+        include: health,prometheus
+      base-path: '/'
+      path-mapping:
+        prometheus: 'metrics'
+
+springdoc:
+  api-docs:
+    path: /docs
+    resolve-schema-properties: true
+
+  override-with-generic-response: false
+  paths-to-exclude: /**/api-docs,/swagger-resources/**
+  swagger-ui:
+    path: /

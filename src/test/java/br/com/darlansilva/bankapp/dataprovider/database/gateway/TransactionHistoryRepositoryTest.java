@@ -1,9 +1,8 @@
 package br.com.darlansilva.bankapp.dataprovider.database.gateway;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
@@ -42,12 +41,9 @@ class TransactionHistoryRepositoryTest {
 
     @Test
     void shouldSaveHistoryItemWithMappedAccountAndValues() {
-        
         final var account = EASY_RANDOM.nextObject(Account.class);
         final var item = EASY_RANDOM.nextObject(TransactionHistoryItem.class);
 
-        
-        
         final var amount = new BigDecimal("123.45");
         final var before = new BigDecimal("1000.00");
         final var after  = new BigDecimal("876.55");
@@ -67,43 +63,34 @@ class TransactionHistoryRepositoryTest {
 
         subject.save(account, deterministicItem);
 
-        
         then(mapperMock).should().toEntity(account);
         then(repositoryMock).should().save(entityCaptor.capture());
 
         final var saved = entityCaptor.getValue();
-        assertThat(saved).isNotNull();
         assertThat(saved.getAccount()).isSameAs(mappedAccountEntity);
         assertThat(saved.getType()).isEqualTo(deterministicItem.getType());
         assertThat(saved.getReferenceId()).isEqualTo(deterministicItem.getReferenceId());
 
-
-        assertThat(saved.getAmount()).isNotNull();
         assertThat(saved.getAmount().compareTo(amount)).isZero();
-
-        assertThat(saved.getBalanceBefore()).isNotNull();
         assertThat(saved.getBalanceBefore().compareTo(before)).isZero();
-
-        assertThat(saved.getBalanceAfter()).isNotNull();
         assertThat(saved.getBalanceAfter().compareTo(after)).isZero();
     }
 
     @Test
     void shouldHandleNullAccountMappingGracefully() {
-        
+
         final var account = EASY_RANDOM.nextObject(Account.class);
         final var item = EASY_RANDOM.nextObject(TransactionHistoryItem.class);
 
-        
         given(mapperMock.toEntity(account)).willReturn(null);
-        
+
         subject.save(account, item);
-        
+
         then(mapperMock).should().toEntity(account);
         then(repositoryMock).should().save(entityCaptor.capture());
 
         final var saved = entityCaptor.getValue();
-        assertThat(saved.getAccount()).isNull(); 
+        assertThat(saved.getAccount()).isNull();
         assertThat(saved.getType()).isEqualTo(item.getType());
         assertThat(saved.getReferenceId()).isEqualTo(item.getReferenceId());
         if (item.getAmount() != null) {

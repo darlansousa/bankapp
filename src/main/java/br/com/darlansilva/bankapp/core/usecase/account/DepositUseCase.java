@@ -19,11 +19,8 @@ public class DepositUseCase {
     private final TransactionHistoryGateway transactionHistoryGateway;
 
     public Account process(Long accountId, String username, BigDecimal amount) throws AccountNotFoundException {
-        final var account = accountGateway.findByIdAndUserUsername(accountId, username)
-                .orElseThrow(AccountNotFoundException::new);
-
+        final var account = accountGateway.findByIdAndUserUsername(accountId, username).orElseThrow(AccountNotFoundException::new);
         account.deposit(amount);
-
         transactionHistoryGateway.save(account, depositInstance(amount, amount));
         return accountGateway.save(account);
     }

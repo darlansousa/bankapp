@@ -1,7 +1,6 @@
 package br.com.darlansilva.bankapp.core.usecase.account;
 
 import java.util.List;
-import javax.security.auth.login.AccountNotFoundException;
 
 import org.springframework.stereotype.Component;
 

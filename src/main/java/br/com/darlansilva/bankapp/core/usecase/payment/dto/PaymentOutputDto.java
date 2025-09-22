@@ -5,7 +5,8 @@ import java.time.LocalDateTime;
 
 import br.com.darlansilva.bankapp.entrypoint.api.dto.output.PaymentTransactionOutputDto;
 
-public record PaymentOutputDto(String documentNumber,
+public record PaymentOutputDto(
+        String documentNumber,
         BigDecimal amount,
         Long accountNumber,
         BigDecimal remainingBalance,

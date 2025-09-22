@@ -48,7 +48,7 @@ public class Account {
     }
 
     public void deposit(BigDecimal amount) {
-         if(this.getBalance().compareTo(BigDecimal.valueOf(0)) < 0) {
+         if(this.getBalance().compareTo(BigDecimal.ZERO) < 0) {
              final var fee = amount.abs().multiply(FEES).setScale(2, RoundingMode.DOWN);
              final var total = amount.subtract(fee);
              this.balance = balance.add(total.setScale(2, RoundingMode.DOWN));

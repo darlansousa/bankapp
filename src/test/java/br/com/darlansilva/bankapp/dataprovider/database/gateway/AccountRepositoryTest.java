@@ -1,11 +1,10 @@
 package br.com.darlansilva.bankapp.dataprovider.database.gateway;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.never;
-import static org.mockito.ArgumentMatchers.any;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -37,7 +36,7 @@ class AccountRepositoryTest {
 
     @Test
     void shouldSaveMappingDomainToEntityAndBack() {
-        
+
         final var domainToSave = EASY_RANDOM.nextObject(Account.class);
         final var entityToPersist = EASY_RANDOM.nextObject(AccountEntity.class);
         final var persistedEntity = EASY_RANDOM.nextObject(AccountEntity.class);
@@ -47,10 +46,10 @@ class AccountRepositoryTest {
         given(repositoryMock.save(entityToPersist)).willReturn(persistedEntity);
         given(mapperMock.toDomain(persistedEntity)).willReturn(mappedBackDomain);
 
-        
+
         final var result = subject.save(domainToSave);
 
-        
+
         then(mapperMock).should().toEntity(domainToSave);
         then(repositoryMock).should().save(entityToPersist);
         then(mapperMock).should().toDomain(persistedEntity);
@@ -59,7 +58,7 @@ class AccountRepositoryTest {
 
     @Test
     void shouldFindByUsernameMappingEachItem() {
-        
+
         final var username = EASY_RANDOM.nextObject(String.class);
         final var e1 = EASY_RANDOM.nextObject(AccountEntity.class);
         final var e2 = EASY_RANDOM.nextObject(AccountEntity.class);
@@ -70,10 +69,10 @@ class AccountRepositoryTest {
         given(mapperMock.toDomain(e1)).willReturn(d1);
         given(mapperMock.toDomain(e2)).willReturn(d2);
 
-        
+
         final var result = subject.findBy(username);
 
-        
+
         then(repositoryMock).should().findByUserUsername(username);
         then(mapperMock).should().toDomain(e1);
         then(mapperMock).should().toDomain(e2);
@@ -83,7 +82,7 @@ class AccountRepositoryTest {
 
     @Test
     void shouldFindByIdAndUsernameWithHistory_whenPresent() {
-        
+
         final Long id = EASY_RANDOM.nextLong();
         final var username = EASY_RANDOM.nextObject(String.class);
         final var entity = EASY_RANDOM.nextObject(AccountEntity.class);
@@ -92,10 +91,10 @@ class AccountRepositoryTest {
         given(repositoryMock.findByIdAndUserWithHistory(id, username)).willReturn(Optional.of(entity));
         given(mapperMock.toDomain(entity)).willReturn(domain);
 
-        
+
         final var result = subject.findByIdAndUsernameWithHistory(id, username);
 
-        
+
         then(repositoryMock).should().findByIdAndUserWithHistory(id, username);
         then(mapperMock).should().toDomain(entity);
         assertThat(result).contains(domain);
@@ -103,16 +102,16 @@ class AccountRepositoryTest {
 
     @Test
     void shouldFindByIdAndUsernameWithHistory_whenEmpty() {
-        
+
         final Long id = EASY_RANDOM.nextLong();
         final var username = EASY_RANDOM.nextObject(String.class);
 
         given(repositoryMock.findByIdAndUserWithHistory(id, username)).willReturn(Optional.empty());
 
-        
+
         final var result = subject.findByIdAndUsernameWithHistory(id, username);
 
-        
+
         then(repositoryMock).should().findByIdAndUserWithHistory(id, username);
         then(mapperMock).should(never()).toDomain(any(AccountEntity.class));
         assertThat(result).isEmpty();
@@ -120,7 +119,7 @@ class AccountRepositoryTest {
 
     @Test
     void shouldFindByIdAndUserUsername_whenPresent() {
-        
+
         final Long id = EASY_RANDOM.nextLong();
         final var username = EASY_RANDOM.nextObject(String.class);
         final var entity = EASY_RANDOM.nextObject(AccountEntity.class);
@@ -129,10 +128,10 @@ class AccountRepositoryTest {
         given(repositoryMock.findByIdAndUserUsername(id, username)).willReturn(Optional.of(entity));
         given(mapperMock.toDomain(entity)).willReturn(domain);
 
-        
+
         final var result = subject.findByIdAndUserUsername(id, username);
 
-        
+
         then(repositoryMock).should().findByIdAndUserUsername(id, username);
         then(mapperMock).should().toDomain(entity);
         assertThat(result).contains(domain);
@@ -140,16 +139,10 @@ class AccountRepositoryTest {
 
     @Test
     void shouldFindByIdAndUserUsername_whenEmpty() {
-        
         final Long id = EASY_RANDOM.nextLong();
         final var username = EASY_RANDOM.nextObject(String.class);
-
         given(repositoryMock.findByIdAndUserUsername(id, username)).willReturn(Optional.empty());
-
-        
         final var result = subject.findByIdAndUserUsername(id, username);
-
-        
         then(repositoryMock).should().findByIdAndUserUsername(id, username);
         then(mapperMock).should(never()).toDomain(any(AccountEntity.class));
         assertThat(result).isEmpty();

@@ -12,10 +12,6 @@ public class Authority {
         this.role = role;
     }
 
-    public static Authority from(Long id, User user, UserRole role) {
-        return new Authority(id, user, role);
-    }
-
     public static Authority from(User user, UserRole role) {
         return new Authority(null, user, role);
     }

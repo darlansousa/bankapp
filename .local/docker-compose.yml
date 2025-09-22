@@ -14,7 +14,7 @@ services:
     container_name: mysql-write
     environment:
       MYSQL_ROOT_PASSWORD: mysql-write
-      MYSQL_DATABASE: app_write
+      MYSQL_DATABASE: app
       MYSQL_USER: app-user
       MYSQL_PASSWORD: app-bank
     command:
@@ -45,7 +45,7 @@ services:
     container_name: mysql-read
     environment:
       MYSQL_ROOT_PASSWORD: mysql-read
-      MYSQL_DATABASE: app_read
+      MYSQL_DATABASE: app
       MYSQL_USER: app-user
       MYSQL_PASSWORD: app-bank
     command:

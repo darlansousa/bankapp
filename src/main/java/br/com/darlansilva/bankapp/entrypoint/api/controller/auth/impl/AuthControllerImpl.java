@@ -13,6 +13,7 @@ import br.com.darlansilva.bankapp.entrypoint.api.controller.auth.AuthController;
 import br.com.darlansilva.bankapp.entrypoint.api.dto.input.AuthInputFormDto;
 import br.com.darlansilva.bankapp.entrypoint.api.dto.output.AuthOutputDto;
 import br.com.darlansilva.bankapp.infra.security.JwtService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -20,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
+@Tag(name = "Login", description = "Através deste recurso é possível gerar token JWT para autenticação")
 public class AuthControllerImpl implements AuthController {
 
     private final AuthenticationManager authManager;

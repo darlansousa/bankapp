@@ -7,8 +7,13 @@ spring:
   jpa:
     hibernate:
       ddl-auto: validate
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        format_sql: true
+      open-in-view: false
   datasource:
-    url: jdbc:mysql://${DB_HOST:localhost}:3307/app_read
+    url: jdbc:mysql://${DB_HOST:localhost}:3307/app
     username: ${DB_USER:app-user}
     password: ${DB_PASSWORD:app-bank}
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -19,6 +24,7 @@ spring:
     bootstrap-servers: ${KAFKA_HOST:localhost}:9094
     consumer:
       group-id: bankapp-app
+
 
 security:
   jwt:

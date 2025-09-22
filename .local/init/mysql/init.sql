@@ -30,39 +30,43 @@ CREATE TABLE IF NOT EXISTS authorities (
     ON UPDATE CASCADE ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS history (
-  id BIGINT NOT NULL AUTO_INCREMENT,
-  card_number VARCHAR(64) NOT NULL,
-  password VARCHAR(255) NOT NULL,
-  created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (id),
-  UNIQUE KEY uk_cards_card_number (card_number)
-);
 
 CREATE TABLE IF NOT EXISTS accounts (
   id BIGINT NOT NULL AUTO_INCREMENT,
+  type VARCHAR(64) NOT NULL,
   balance DECIMAL(19,2) NOT NULL DEFAULT 0.00,
   user_id BIGINT NOT NULL,
-  card_id BIGINT NOT NULL,
   created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
-  UNIQUE KEY uk_card_accounts_card_id (card_id),
-  KEY idx_card_accounts_user_id (user_id),
-  CONSTRAINT fk_card_accounts_user
+  KEY idx_accounts_user_id (user_id),
+  CONSTRAINT fk_accounts_user
     FOREIGN KEY (user_id) REFERENCES users(id)
-    ON UPDATE CASCADE ON DELETE CASCADE,
-  CONSTRAINT fk_card_accounts_card
-    FOREIGN KEY (card_id) REFERENCES cards(id)
-    ON UPDATE CASCADE ON DELETE RESTRICT
+    ON UPDATE CASCADE ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS history_items (
+  id BIGINT NOT NULL AUTO_INCREMENT,
+  type VARCHAR(64) NOT NULL,
+  amount DECIMAL(19,2) NOT NULL DEFAULT 0.00,
+  balance_after DECIMAL(19,2) NOT NULL DEFAULT 0.00,
+  balance_before DECIMAL(19,2) NOT NULL DEFAULT 0.00,
+  reference_id VARCHAR(255) NULL,
+  account_id BIGINT NOT NULL,
+  created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  KEY idx_accounts_account_id (account_id),
+    CONSTRAINT fk_history_account
+      FOREIGN KEY (account_id) REFERENCES accounts(id)
+      ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 INSERT INTO users (username, cpf, password)
 SELECT 'admin','514.307.950-00','$2a$10$fJ65H/8ihJW40LOI4CAzWuiqp/G.TQs1rzs8RbfiR1avAP9Ty0Tau'
 WHERE NOT EXISTS (SELECT 1 FROM users WHERE username = 'admin');
 
-INSERT INTO users (username, password)
+INSERT INTO users (username, cpf, password)
 SELECT 'user','591.382.490-30', '$2b$10$lNnrCtsLXsPB6RgFvxHbWuCE9jmC4DwUEI3b5DrlLZ72EBPYpGNfS'
 WHERE NOT EXISTS (SELECT 1 FROM users WHERE username = 'user');
 

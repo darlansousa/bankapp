@@ -16,6 +16,7 @@ import br.com.darlansilva.bankapp.dataprovider.database.entity.UserEntity;
 
 @Mapper(componentModel = "spring",
         unmappedSourcePolicy = ReportingPolicy.IGNORE,
+        unmappedTargetPolicy = ReportingPolicy.IGNORE,
         uses = {AuthorityEntityMapper.class},
         injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 public interface UserEntityMapper extends BaseMapper<UserEntity, User> {

@@ -11,8 +11,6 @@ public interface AccountGateway {
 
     List<Account> findBy(String username);
 
-    Optional<Account> findBy(Long id);
-
     Optional<Account> findByIdAndUsernameWithHistory(Long id, String username);
 
     Optional<Account> findByIdAndUserUsername(Long id, String username);

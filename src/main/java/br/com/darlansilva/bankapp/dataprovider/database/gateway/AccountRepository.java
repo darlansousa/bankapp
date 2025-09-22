@@ -33,11 +33,6 @@ public class AccountRepository implements AccountGateway {
     }
 
     @Override
-    public Optional<Account> findBy(Long id) {
-        return repository.findById(id).map(mapper::toDomain);
-    }
-
-    @Override
     public Optional<Account> findByIdAndUsernameWithHistory(Long id, String username) {
         return repository.findByIdAndUserWithHistory(id, username).map(mapper::toDomain);
     }

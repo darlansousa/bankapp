@@ -3,6 +3,7 @@ package br.com.darlansilva.bankapp.dataprovider.database.entity;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -38,8 +39,11 @@ public class UserEntity {
     private String username;
     @Column(name = "password")
     private String password;
+    @Column(name = "cpf", unique = true)
+    private String cpf;
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<AuthorityEntity> authorities;
+    @CreatedDate
     @Column(name = "created", nullable = false, updatable = false)
     private LocalDateTime created;
     @LastModifiedDate

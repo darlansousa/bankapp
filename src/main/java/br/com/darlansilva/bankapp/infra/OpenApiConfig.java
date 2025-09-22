@@ -10,13 +10,14 @@ import io.swagger.v3.oas.annotations.security.SecurityScheme;
 
 @Configuration
 @SecurityScheme(
-        name = "basicAuth",
+        name = "bearerAuth",
         type = SecuritySchemeType.HTTP,
-        scheme = "basic"
+        scheme = "bearer",
+        bearerFormat = "JWT"
 )
 @OpenAPIDefinition(
         info = @Info(title = "Teste de programação - NTT Data", version = "v1"),
-        security = { @SecurityRequirement(name = "basicAuth") }
+        security = { @SecurityRequirement(name = "bearerAuth") }
 )
 public class OpenApiConfig {
 }

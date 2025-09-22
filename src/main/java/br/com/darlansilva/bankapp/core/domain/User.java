@@ -6,18 +6,20 @@ import java.util.Objects;
 public class User {
     private final Long id;
     private final String username;
+    private final String cpf;
     private final String password;
     private final List<UserRole> roles;
 
-    public User(Long id, String username, String password, List<UserRole> roles) {
+    public User(Long id, String username, String cpf, String password, List<UserRole> roles) {
         this.id = id;
         this.username = username;
+        this.cpf = cpf;
         this.password = password;
         this.roles = roles;
     }
 
-    public static User from(Long id, String username, String password, List<UserRole> roles) {
-        return new User(id, username, password, roles);
+    public static User from(String username, String cpf, String password, List<UserRole> roles) {
+        return new User(null, username, cpf, password, roles);
     }
 
     public Long getId() {
@@ -34,6 +36,10 @@ public class User {
 
     public List<UserRole> getRoles() {
         return roles;
+    }
+
+    public String getCpf() {
+        return cpf;
     }
 
     @Override

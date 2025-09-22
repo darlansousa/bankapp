@@ -39,7 +39,8 @@ public class UserRepository implements UserGateway {
 
     @Override
     public User save(User user) {
-        return mapper.toDomain(repository.save(mapper.toEntity(user)));
+        final var entity = mapper.toEntity(user);
+        return mapper.toDomain(repository.save(entity));
     }
 
     @Override

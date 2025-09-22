@@ -4,6 +4,14 @@ server:
 spring:
   application:
     name: bankapp
+  jpa:
+    hibernate:
+      ddl-auto: validate
+  datasource:
+    url: jdbc:mysql://${DB_HOST:localhost}:3307/app_read
+    username: ${DB_USER:app-user}
+    password: ${DB_PASSWORD:app-bank}
+    driver-class-name: com.mysql.cj.jdbc.Driver
   data:
     jackson:
       property-naming-strategy: SNAKE_CASE
@@ -44,3 +52,7 @@ springdoc:
   paths-to-exclude: /**/api-docs,/swagger-resources/**
   swagger-ui:
     path: /
+    operationsSorter: method
+    tagsSorter: alpha
+    display-request-duration: true
+    persistAuthorization: true

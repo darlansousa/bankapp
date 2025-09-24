@@ -99,6 +99,37 @@ services:
       mysql -hmysql-read -uroot -pmysql-read -e 'SHOW REPLICA STATUS\\G';
       echo '>> Finalizado.';
       "
+  app:
+    # Rode com minha imagem do docker hub(https://hub.docker.com/r/darlankenobi/miniautorizador)
+    image: darlankenobi/bankapp:1.0.1
+
+    # Rode apontando para dockerfile
+#    build:
+#      context: ..
+#      dockerfile: Dockerfile
+
+    container_name: bankapp
+    ports:
+      - "8081:8081"
+    environment:
+      - SERVER_PORT=8081
+      - WRITE_DB_HOST=mysql_write
+      - WRITE_DB_PORT=3306
+      - WRITE_DB_USER=app-user
+      - WRITE_DB_PASSWORD=app-bank
+      - READ_DB_HOST=mysql_read
+      - READ_DB_PORT=3306
+      - READ_DB_USER=app-user
+      - READ_DB_PASSWORD=app-bank
+      - REDIS_DB_HOST=redis
+      - JWT_SECRET=MD+Pr6fgCeLJ3eS4SDM7oQf5DetV7Y7FIhPjEsaqFSM=
+    depends_on:
+      mysql_read:
+        condition: service_healthy
+      mysql_write:
+        condition: service_healthy
+      redis:
+        condition: service_started
 
 volumes:
   mysql_write_data:

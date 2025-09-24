@@ -20,9 +20,6 @@ $ mvn spring-boot:run
 
 * Spring Boot application running on port 8081
 * Two instances of MySQL database (Read and Write)
-* Debezium CDC Service
-* Kafka instance
-* Kafka UI running on port 8080
 * Redis instance
 
 ### Documentation
@@ -38,3 +35,7 @@ The project documentation is available at: [http://localhost:8081/swagger-ui/ind
 * User: user
 * Password: user
 * Role: ROLE_USER
+
+#Database schema
+
+Click [here](https://drawsql.app/teams/car/diagrams/bank) to see the database schema.

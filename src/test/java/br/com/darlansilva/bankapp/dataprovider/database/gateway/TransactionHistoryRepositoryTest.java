@@ -54,7 +54,8 @@ class TransactionHistoryRepositoryTest {
                 amount,
                 before,
                 after,
-                item.getReferenceId());
+                item.getReferenceId(),
+                item.getCreated());
 
         final var mappedAccountEntity = EASY_RANDOM.nextObject(AccountEntity.class);
 

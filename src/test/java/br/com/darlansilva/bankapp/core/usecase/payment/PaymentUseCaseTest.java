@@ -1,6 +1,6 @@
 package br.com.darlansilva.bankapp.core.usecase.payment;
 
-import static br.com.darlansilva.bankapp.core.domain.AccountType.CHECKING;
+import static br.com.darlansilva.bankapp.core.domain.AccountType.PAYMENT;
 import static br.com.darlansilva.bankapp.core.domain.AccountType.SAVINGS;
 import static br.com.darlansilva.bankapp.core.domain.TransactionHistoryItem.paymentInstance;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -52,14 +52,14 @@ class PaymentUseCaseTest {
         BigDecimal balance = BigDecimal.valueOf(100);
 
         final var savings = Account.from(SAVINGS, balance, EASY_RANDOM.nextObject(User.class));
-        final var checking = Account.from(CHECKING, balance, EASY_RANDOM.nextObject(User.class));
+        final var payment = Account.from(PAYMENT, balance, EASY_RANDOM.nextObject(User.class));
 
-        final var expected = new PaymentOutputDto(documentNumber, amount, checking.getId(),
+        final var expected = new PaymentOutputDto(documentNumber, amount, payment.getId(),
                                                   BigDecimal.valueOf(90).setScale(2, RoundingMode.DOWN),
                                                   LocalDateTime.now());
 
-        given(accountGatewayMock.findBy(username)).willReturn(List.of(savings, checking));
-        given(accountGatewayMock.save(checking)).willReturn(checking);
+        given(accountGatewayMock.findBy(username)).willReturn(List.of(savings, payment));
+        given(accountGatewayMock.save(payment)).willReturn(payment);
 
         final var result = subject.processPayment(documentNumber, amount, username);
 
@@ -68,9 +68,9 @@ class PaymentUseCaseTest {
         assertEquals(expected.accountNumber(), result.accountNumber());
 
         then(accountGatewayMock).should().findBy(username);
-        then(accountGatewayMock).should().save(checking);
+        then(accountGatewayMock).should().save(payment);
         then(accountGatewayMock).should(never()).save(savings);
-        then(historyGatewayMock).should().save(checking, paymentInstance(amount, balance, documentNumber));
+        then(historyGatewayMock).should().save(payment, paymentInstance(amount, balance, documentNumber));
     }
 
     @Test

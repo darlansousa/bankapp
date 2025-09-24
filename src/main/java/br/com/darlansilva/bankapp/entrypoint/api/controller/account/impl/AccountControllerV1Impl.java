@@ -10,12 +10,12 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import br.com.darlansilva.bankapp.core.exception.AccountNotFoundException;
 import br.com.darlansilva.bankapp.core.usecase.account.DepositUseCase;
 import br.com.darlansilva.bankapp.core.usecase.account.ReadAccountsUseCase;
 import br.com.darlansilva.bankapp.core.usecase.account.ReadBalanceUseCase;
@@ -87,7 +87,8 @@ public class AccountControllerV1Impl implements AccountController {
             @ApiResponse(responseCode = "422", description = "Erro na transação")})
     @CacheEvict(cacheNames="balance", key = "#principal.name + ':' + #id")
     @Override
-    public AccountTransactionOutputDto deposit(Long id, @RequestBody @Valid AccountTransactionInputDto input,
+    public AccountTransactionOutputDto deposit(@PathVariable Long id,
+                                               @RequestBody @Valid AccountTransactionInputDto input,
                                                Principal principal){
         final var account = depositUseCase.process(id, principal.getName(), input.amount());
         return AccountTransactionOutputDto.builder()
@@ -105,7 +106,8 @@ public class AccountControllerV1Impl implements AccountController {
             @ApiResponse(responseCode = "422", description = "Erro na transação")})
     @CacheEvict(cacheNames="balance", key = "#principal.name + ':' + #id")
     @Override
-    public AccountTransactionOutputDto withdrawal(Long id, @RequestBody @Valid AccountTransactionInputDto input,
+    public AccountTransactionOutputDto withdrawal(@PathVariable Long id,
+                                                  @RequestBody @Valid AccountTransactionInputDto input,
                                                   Principal principal) {
         final var account = withdrawalUseCase.process(id, principal.getName(), input.amount());
         return AccountTransactionOutputDto.builder()
@@ -123,16 +125,16 @@ public class AccountControllerV1Impl implements AccountController {
             @ApiResponse(responseCode = "404", description = "Conta não existente")})
     @Cacheable(value = "balance", key = "#principal.name + ':' + #id")
     @Override
-    public AccountBalanceOutputDto balance(Long id, Principal principal) {
+    public AccountBalanceOutputDto balance(@PathVariable Long id, Principal principal) {
         final var builder = AccountBalanceOutputDto.builder();
         final var account = readBalanceUseCase.readBalanceWithHistory(id, principal.getName());
         builder.balance(account.getBalance());
 
-        builder.history(account.getHistory().stream().map(item ->
-                                                                  HistoryItemDto.builder().type(item.getType().name())
-                                                                          .amount(item.getAmount().setScale(2,
-                                                                                                            RoundingMode.DOWN))
-                                                                          .date(now()).build()
+        builder.history(account.getHistory()
+                                .stream()
+                                .map(item -> HistoryItemDto.builder().type(item.getType().name())
+                                        .amount(item.getAmount().setScale(2, RoundingMode.DOWN))
+                                        .date(item.getCreated()).build()
 
         ).toList());
         return builder.build();

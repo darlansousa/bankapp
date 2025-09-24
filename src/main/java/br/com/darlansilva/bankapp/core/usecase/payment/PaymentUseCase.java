@@ -26,7 +26,7 @@ public class PaymentUseCase {
     public PaymentOutputDto processPayment(String documentNumber, BigDecimal amount, String username) {
         Account savedAccount = accountGateway.findBy(username)
                 .stream()
-                .filter(account -> account.getType().equals(AccountType.CHECKING))
+                .filter(account -> account.getType().equals(AccountType.PAYMENT))
                 .findFirst().orElseThrow(PaymentAccountNotFoundException::new);
         savedAccount.pay(amount);
         accountGateway.save(savedAccount);

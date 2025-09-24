@@ -5,6 +5,7 @@ import static java.time.LocalDateTime.now;
 import java.math.BigDecimal;
 
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import br.com.darlansilva.bankapp.core.domain.Account;
 import br.com.darlansilva.bankapp.core.domain.AccountType;
@@ -21,6 +22,7 @@ public class PaymentUseCase {
     private final AccountGateway accountGateway;
     private final TransactionHistoryGateway transactionHistoryGateway;
 
+    @Transactional
     public PaymentOutputDto processPayment(String documentNumber, BigDecimal amount, String username) {
         Account savedAccount = accountGateway.findBy(username)
                 .stream()

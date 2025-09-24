@@ -1,5 +1,8 @@
 package br.com.darlansilva.bankapp.entrypoint.api.controller.payment.impl;
 
+import java.security.Principal;
+
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -41,12 +44,13 @@ public class PaymentControllerV1Impl implements PaymentController {
             }
     )
     @ResponseStatus(HttpStatus.CREATED)
+    @CacheEvict(cacheNames="balance", allEntries = true)
     @Override
-    public PaymentTransactionOutputDto pay(@RequestBody @Valid PaymentInputDto paymentInputDto, String username) {
+    public PaymentTransactionOutputDto pay(@RequestBody @Valid PaymentInputDto input, Principal principal) {
         return paymentUseCase.processPayment(
-                paymentInputDto.getDocumentNumber(),
-                paymentInputDto.getAmount(),
-                username
+                input.getDocumentNumber(),
+                input.getAmount(),
+                principal.getName()
         ).toOutputTransaction();
     }
 }

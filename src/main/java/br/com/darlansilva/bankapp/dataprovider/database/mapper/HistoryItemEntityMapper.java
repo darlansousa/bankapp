@@ -5,12 +5,12 @@ import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 
 import br.com.darlansilva.bankapp.core.common.BaseMapper;
-import br.com.darlansilva.bankapp.core.domain.Account;
-import br.com.darlansilva.bankapp.dataprovider.database.entity.AccountEntity;
+import br.com.darlansilva.bankapp.core.domain.TransactionHistoryItem;
+import br.com.darlansilva.bankapp.dataprovider.database.entity.HistoryItemEntity;
+
 @Mapper(componentModel = "spring",
         unmappedSourcePolicy = ReportingPolicy.IGNORE,
         unmappedTargetPolicy = ReportingPolicy.IGNORE,
-        uses = {HistoryItemEntityMapper.class},
         injectionStrategy = InjectionStrategy.CONSTRUCTOR)
-public interface AccountEntityMapper extends BaseMapper<AccountEntity, Account> {
+public interface HistoryItemEntityMapper extends BaseMapper<HistoryItemEntity, TransactionHistoryItem> {
 }

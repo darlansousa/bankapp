@@ -1,7 +1,3 @@
-CREATE USER IF NOT EXISTS 'debezium'@'%' IDENTIFIED BY 'dbz';
-GRANT SELECT, RELOAD, SHOW DATABASES, REPLICATION SLAVE, REPLICATION CLIENT ON *.* TO 'debezium'@'%';
-FLUSH PRIVILEGES;
-
 CREATE DATABASE IF NOT EXISTS app;
 USE app;
 
@@ -61,39 +57,3 @@ CREATE TABLE IF NOT EXISTS history_items (
       FOREIGN KEY (account_id) REFERENCES accounts(id)
       ON UPDATE CASCADE ON DELETE CASCADE
 );
-
-INSERT INTO users (username, cpf, password)
-SELECT 'admin','514.307.950-00','$2a$10$fJ65H/8ihJW40LOI4CAzWuiqp/G.TQs1rzs8RbfiR1avAP9Ty0Tau'
-WHERE NOT EXISTS (SELECT 1 FROM users WHERE username = 'admin');
-
-INSERT INTO users (username, cpf, password)
-SELECT 'user','591.382.490-30', '$2b$10$lNnrCtsLXsPB6RgFvxHbWuCE9jmC4DwUEI3b5DrlLZ72EBPYpGNfS'
-WHERE NOT EXISTS (SELECT 1 FROM users WHERE username = 'user');
-
-INSERT INTO authorities (user_id, role)
-SELECT u.id, 'ROLE_ADMIN'
-FROM users u
-WHERE u.username = 'admin'
-  AND NOT EXISTS (
-    SELECT 1 FROM authorities a
-    WHERE a.user_id = u.id AND a.role = 'ROLE_ADMIN'
-  );
-
-INSERT INTO authorities (user_id, role)
-SELECT u.id, 'ROLE_USER'
-FROM users u
-WHERE u.username = 'admin'
-  AND NOT EXISTS (
-    SELECT 1 FROM authorities a
-    WHERE a.user_id = u.id AND a.role = 'ROLE_USER'
-  );
-
-INSERT INTO authorities (user_id, role)
-SELECT u.id, 'ROLE_USER'
-FROM users u
-WHERE u.username = 'user'
-  AND NOT EXISTS (
-    SELECT 1 FROM authorities a
-    WHERE a.user_id = u.id AND a.role = 'ROLE_USER'
-  );
-

@@ -1,14 +1,21 @@
 package br.com.darlansilva.bankapp.core.domain;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
 
-public class User {
+public class User implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 7227857066128394718L;
     private final Long id;
     private final String username;
     private final String cpf;
     private final String password;
     private final List<UserRole> roles;
+
+
 
     public User(Long id, String username, String cpf, String password, List<UserRole> roles) {
         this.id = id;

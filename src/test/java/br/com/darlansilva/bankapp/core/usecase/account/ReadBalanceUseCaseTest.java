@@ -8,8 +8,6 @@ import static org.mockito.Mockito.only;
 
 import java.util.Optional;
 
-import javax.security.auth.login.AccountNotFoundException;
-
 import org.jeasy.random.EasyRandom;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -19,6 +17,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import br.com.darlansilva.bankapp.core.domain.Account;
+import br.com.darlansilva.bankapp.core.exception.AccountNotFoundException;
 import br.com.darlansilva.bankapp.core.gateway.AccountGateway;
 
 @ExtendWith(MockitoExtension.class)

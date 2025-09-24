@@ -1,14 +1,16 @@
 package br.com.darlansilva.bankapp.core.domain;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
 import java.util.Objects;
 
-public class Account {
-    private static final BigDecimal FEES = new BigDecimal("1.02")
-            .movePointLeft(2)
-            .setScale(2, RoundingMode.DOWN);
+public class Account implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 2121926365899502417L;
     private final Long id;
     private final AccountType type;
     private BigDecimal balance;
@@ -49,7 +51,11 @@ public class Account {
 
     public void deposit(BigDecimal amount) {
          if(this.getBalance().compareTo(BigDecimal.ZERO) < 0) {
-             final var fee = amount.abs().multiply(FEES).setScale(2, RoundingMode.DOWN);
+                final var fees = new BigDecimal("1.02")
+                        .movePointLeft(2)
+                        .setScale(2, RoundingMode.DOWN);
+
+             final var fee = amount.abs().multiply(fees).setScale(2, RoundingMode.DOWN);
              final var total = amount.subtract(fee);
              this.balance = balance.add(total.setScale(2, RoundingMode.DOWN));
              return;

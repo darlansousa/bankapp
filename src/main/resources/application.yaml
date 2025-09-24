@@ -13,18 +13,30 @@ spring:
         format_sql: true
       open-in-view: false
   datasource:
-    url: jdbc:mysql://${DB_HOST:localhost}:3307/app
-    username: ${DB_USER:app-user}
-    password: ${DB_PASSWORD:app-bank}
-    driver-class-name: com.mysql.cj.jdbc.Driver
+    write:
+      hikari:
+        jdbc-url: jdbc:mysql://${DB_HOST:localhost}:3306/app
+        username: ${DB_USER:app-user}
+        password: ${DB_PASSWORD:app-bank}
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        maximum-pool-size: 10
+    read:
+      hikari:
+        jdbc-url: jdbc:mysql://${DB_HOST:localhost}:3307/app
+        username: ${DB_USER:app-user}
+        password: ${DB_PASSWORD:app-bank}
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        maximum-pool-size: 10
   data:
     jackson:
       property-naming-strategy: SNAKE_CASE
-  kafka:
-    bootstrap-servers: ${KAFKA_HOST:localhost}:9094
-    consumer:
-      group-id: bankapp-app
-
+  redis:
+    host: localhost
+    port: 6379
+    repository:
+      enabled: false
+    cache:
+      type: redis
 
 security:
   jwt:

@@ -10,7 +10,6 @@ import static org.mockito.Mockito.never;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Optional;
-import javax.security.auth.login.AccountNotFoundException;
 
 import org.jeasy.random.EasyRandom;
 import org.junit.jupiter.api.Test;
@@ -22,6 +21,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import br.com.darlansilva.bankapp.core.domain.Account;
 import br.com.darlansilva.bankapp.core.domain.AccountType;
 import br.com.darlansilva.bankapp.core.domain.User;
+import br.com.darlansilva.bankapp.core.exception.AccountNotFoundException;
 import br.com.darlansilva.bankapp.core.gateway.AccountGateway;
 import br.com.darlansilva.bankapp.core.gateway.TransactionHistoryGateway;
 

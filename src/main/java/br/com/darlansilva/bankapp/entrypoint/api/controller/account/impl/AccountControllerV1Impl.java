@@ -5,8 +5,9 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.security.Principal;
 import java.util.List;
-import javax.security.auth.login.AccountNotFoundException;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import br.com.darlansilva.bankapp.core.exception.AccountNotFoundException;
 import br.com.darlansilva.bankapp.core.usecase.account.DepositUseCase;
 import br.com.darlansilva.bankapp.core.usecase.account.ReadAccountsUseCase;
 import br.com.darlansilva.bankapp.core.usecase.account.ReadBalanceUseCase;
@@ -53,6 +55,7 @@ public class AccountControllerV1Impl implements AccountController {
             @ApiResponse(responseCode = "201", content = {
                     @Content(schema = @Schema(implementation = AccountOutputDto.class))}),
             @ApiResponse(responseCode = "422", description = "Erro ao criar conta")})
+    @CacheEvict(cacheNames="accounts", key="#principal.name")
     @Override
     public AccountOutputDto create(@RequestBody @Valid AccountInputDto input, Principal principal) {
         final var username = principal.getName();
@@ -67,6 +70,7 @@ public class AccountControllerV1Impl implements AccountController {
             @ApiResponse(responseCode = "200", content = {
                     @Content(array = @ArraySchema(schema = @Schema(implementation = AccountOutputDto.class)))})})
     @Override
+    @Cacheable(value = "accounts", key = "#principal.name", unless = "#result.isEmpty()")
     public List<AccountOutputDto> findBy(Principal principal) {
         return readAccountsUseCase.readBy(principal.getName()).stream().map(account -> AccountOutputDto.builder()
                 .accountId(account.getId())
@@ -81,9 +85,10 @@ public class AccountControllerV1Impl implements AccountController {
             @ApiResponse(responseCode = "201", content = {
                     @Content(schema = @Schema(implementation = AccountTransactionOutputDto.class))}),
             @ApiResponse(responseCode = "422", description = "Erro na transação")})
+    @CacheEvict(cacheNames="balance", key = "#principal.name + ':' + #id")
     @Override
     public AccountTransactionOutputDto deposit(Long id, @RequestBody @Valid AccountTransactionInputDto input,
-                                               Principal principal) throws AccountNotFoundException {
+                                               Principal principal){
         final var account = depositUseCase.process(id, principal.getName(), input.amount());
         return AccountTransactionOutputDto.builder()
                 .accountNumber(account.getId())
@@ -98,9 +103,10 @@ public class AccountControllerV1Impl implements AccountController {
             @ApiResponse(responseCode = "201", content = {
                     @Content(schema = @Schema(implementation = AccountTransactionOutputDto.class))}),
             @ApiResponse(responseCode = "422", description = "Erro na transação")})
+    @CacheEvict(cacheNames="balance", key = "#principal.name + ':' + #id")
     @Override
     public AccountTransactionOutputDto withdrawal(Long id, @RequestBody @Valid AccountTransactionInputDto input,
-                                                  Principal principal) throws AccountNotFoundException {
+                                                  Principal principal) {
         final var account = withdrawalUseCase.process(id, principal.getName(), input.amount());
         return AccountTransactionOutputDto.builder()
                 .accountNumber(account.getId())
@@ -115,8 +121,9 @@ public class AccountControllerV1Impl implements AccountController {
             @ApiResponse(responseCode = "200", content = {
                     @Content(schema = @Schema(implementation = BigDecimal.class))}),
             @ApiResponse(responseCode = "404", description = "Conta não existente")})
+    @Cacheable(value = "balance", key = "#principal.name + ':' + #id")
     @Override
-    public AccountBalanceOutputDto balance(Long id, Principal principal) throws AccountNotFoundException {
+    public AccountBalanceOutputDto balance(Long id, Principal principal) {
         final var builder = AccountBalanceOutputDto.builder();
         final var account = readBalanceUseCase.readBalanceWithHistory(id, principal.getName());
         builder.balance(account.getBalance());
@@ -125,7 +132,7 @@ public class AccountControllerV1Impl implements AccountController {
                                                                   HistoryItemDto.builder().type(item.getType().name())
                                                                           .amount(item.getAmount().setScale(2,
                                                                                                             RoundingMode.DOWN))
-                                                                          .date(item.getCreated()).build()
+                                                                          .date(now()).build()
 
         ).toList());
         return builder.build();

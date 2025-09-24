@@ -7,7 +7,7 @@ services:
       - "6379:6379"
     command: [ "redis-server", "--appendonly", "yes" ]
     volumes:
-      - redis_data:/dataprovider
+      - redis_data:/data
 
   mysql_write:
     image: mysql:8.0
@@ -32,13 +32,13 @@ services:
     ports:
       - "3306:3306"
     healthcheck:
-      test: [ "CMD-SHELL", "mysqladmin ping -h localhost -uroot -proot || exit 1" ]
+      test: [ "CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -pmysql-write || exit 1" ]
       interval: 5s
       timeout: 3s
       retries: 20
     volumes:
       - mysql_write_data:/var/lib/mysql
-      - ./init/mysql:/docker-entrypoint-initdb.d:ro
+      - ./init/mysql/write:/docker-entrypoint-initdb.d:ro
 
   mysql_read:
     image: mysql:8.0
@@ -46,117 +46,64 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: mysql-read
       MYSQL_DATABASE: app
-      MYSQL_USER: app-user
-      MYSQL_PASSWORD: app-bank
     command:
       [
         "mysqld",
-        "--default-authentication-plugin=mysql_native_password"
+        "--default-authentication-plugin=mysql_native_password",
+        "--server-id=2",
+        "--log-bin=mysql-bin",
+        "--log-replica-updates=ON",
+        "--relay_log=relay-bin",
+        "--gtid-mode=ON",
+        "--enforce-gtid-consistency=ON"
       ]
     ports:
       - "3307:3306"
     healthcheck:
-      test: [ "CMD-SHELL", "mysqladmin ping -h localhost -uroot -proot || exit 1" ]
+      test: [ "CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -pmysql-read || exit 1" ]
       interval: 5s
       timeout: 3s
       retries: 20
     volumes:
       - mysql_read_data:/var/lib/mysql
-      - ./init/mysql:/docker-entrypoint-initdb.d:ro
+      - ./init/mysql/read:/docker-entrypoint-initdb.d:ro
 
-  kafka:
-    image: bitnami/kafka:3.7
-    container_name: kafka
-    ports:
-      - "9094:9094"
-    environment:
-      - KAFKA_ENABLE_KRAFT=yes
-      - KAFKA_CFG_PROCESS_ROLES=controller,broker
-      - KAFKA_CFG_NODE_ID=1
-      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@kafka:9093
-      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
-
-      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://:9094
-      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092,EXTERNAL://localhost:9094
-      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT
-
-      - ALLOW_PLAINTEXT_LISTENER=yes
-      - KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=true
-
-      - KAFKA_KRAFT_CLUSTER_ID=abcdefghijklmnopqrstuv
-      - KAFKA_CFG_LOG_DIRS=/bitnami/kafka/dataprovider
-    healthcheck:
-      test: [ "CMD-SHELL", "kafka-topics.sh --bootstrap-server localhost:9092 --list >/dev/null 2>&1 || exit 1" ]
-      interval: 10s
-      timeout: 5s
-      retries: 20
-    volumes:
-      - kafka_data:/bitnami/kafka
-
-  kafka-ui:
-    image: provectuslabs/kafka-ui:latest
-    container_name: kafka-ui
+  replica_config:
+    image: mysql:8.0
+    container_name: mysql-replica-config
     depends_on:
-      - kafka
-    ports:
-      - "8080:8080"
-    environment:
-      - KAFKA_CLUSTERS_0_NAME=local
-      - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafka:9092
-
-  debezium:
-    image: debezium/connect:2.6
-    container_name: debezium-connect
-    depends_on:
-      kafka:
-        condition: service_healthy
       mysql_write:
         condition: service_healthy
-    ports:
-      - "8083:8083"
-    environment:
-      - BOOTSTRAP_SERVERS=kafka:9092
-      - GROUP_ID=1
-      - CONFIG_STORAGE_TOPIC=connect-configs
-      - OFFSET_STORAGE_TOPIC=connect-offsets
-      - STATUS_STORAGE_TOPIC=connect-status
-      - KEY_CONVERTER=org.apache.kafka.connect.json.JsonConverter
-      - VALUE_CONVERTER=org.apache.kafka.connect.json.JsonConverter
-      - KEY_CONVERTER_SCHEMAS_ENABLE=false
-      - VALUE_CONVERTER_SCHEMAS_ENABLE=false
-      - ENABLE_DEBEZIUM_SCRIPTING=true
-
-#  app:
-#    #image: darlankenobi/bank-app:1.0.0
-#    build:
-#       context: ..
-#       dockerfile: Dockerfile
-#
-#    container_name: app
-#    ports:
-#      - "8081:8081"
-#    environment:
-#      - SERVER_PORT=8081
-#      - DB_HOST=mysql
-#      - DB_USER=root
-#      - DB_PASSWORD=app
-#      - KAFKA_HOST=kafka
-#    depends_on:
-#      mysql_read:
-#        condition: service_healthy
-#      mysql_write:
-#        condition: service_healthy
-#      kafka:
-#        condition: service_started
-#      redis:
-#        condition: service_started
+      mysql_read:
+        condition: service_healthy
+    entrypoint: [ "sh", "-c" ]
+    command: >
+      "
+      echo '>> Aguardando MySQLs ficarem prontos...';
+      for i in 1 2 3 4 5 6 7 8 9 10; do
+        mysqladmin ping -hmysql-write -uroot -pmysql-write && mysqladmin ping -hmysql-read -uroot -pmysql-read && break || sleep 2;
+      done;
+      echo '>> Configurando CHANGE REPLICATION SOURCE TO (GTID)...';
+      mysql -hmysql-read -uroot -pmysql-read -e \"
+        STOP REPLICA;
+        CHANGE REPLICATION SOURCE TO
+          SOURCE_HOST='mysql-write',
+          SOURCE_PORT=3306,
+          SOURCE_USER='repl',
+          SOURCE_PASSWORD='repl-pass',
+          GET_SOURCE_PUBLIC_KEY=1,
+          SOURCE_AUTO_POSITION=1;
+        START REPLICA;
+      \";
+      echo '>> Status da réplica:';
+      mysql -hmysql-read -uroot -pmysql-read -e 'SHOW REPLICA STATUS\\G';
+      echo '>> Finalizado.';
+      "
 
 volumes:
   mysql_write_data:
     driver: local
   mysql_read_data:
-    driver: local
-  kafka_data:
     driver: local
   redis_data:
     driver: local

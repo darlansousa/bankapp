@@ -3,6 +3,8 @@ package br.com.darlansilva.bankapp.entrypoint.api.config;
 import java.util.List;
 import java.util.stream.StreamSupport;
 
+import javax.security.auth.login.AccountNotFoundException;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -62,6 +64,15 @@ public class ApiExceptionHandler {
     public InvalidRequestExceptionResponse onUseCaseException(UseCaseException ex) {
         return new InvalidRequestExceptionResponse(ex.getMessage(), List.of());
     }
+
+    @ExceptionHandler(AccountNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ResponseBody
+    public InvalidRequestExceptionResponse onAccountNotFoundException(UseCaseException ex) {
+        return new InvalidRequestExceptionResponse(ex.getMessage(), List.of());
+    }
+
+
 
     @ExceptionHandler(RuntimeException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)

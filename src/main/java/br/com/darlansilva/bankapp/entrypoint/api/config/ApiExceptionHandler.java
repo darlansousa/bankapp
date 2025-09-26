@@ -6,6 +6,7 @@ import java.util.stream.StreamSupport;
 import javax.security.auth.login.AccountNotFoundException;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -72,12 +73,18 @@ public class ApiExceptionHandler {
         return new InvalidRequestExceptionResponse(ex.getMessage(), List.of());
     }
 
-
+    @ExceptionHandler(BadCredentialsException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    @ResponseBody
+    public InvalidRequestExceptionResponse onBadCredentialsException(BadCredentialsException ex) {
+        return new InvalidRequestExceptionResponse(ex.getMessage(), List.of());
+    }
 
     @ExceptionHandler(RuntimeException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ResponseBody
     public InvalidRequestExceptionResponse onRuntimeException(RuntimeException ex) {
+        log.error("Unhandled exception caught: ", ex);
         return new InvalidRequestExceptionResponse(ex.getMessage(), List.of());
     }
 

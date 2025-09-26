@@ -28,11 +28,6 @@ import br.com.darlansilva.bankapp.entrypoint.api.dto.output.AccountOutputDto;
 public class RedisConfig {
 
     @Bean
-    public LettuceConnectionFactory redisConnectionFactory() {
-        return new LettuceConnectionFactory();
-    }
-
-    @Bean
     public ObjectMapper objectMapper() {
         return new ObjectMapper().registerModule(new JavaTimeModule());
     }

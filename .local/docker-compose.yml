@@ -101,7 +101,7 @@ services:
       "
   app:
     # Rode com minha imagem do docker hub(https://hub.docker.com/r/darlankenobi/miniautorizador)
-    image: darlankenobi/bankapp:1.0.1
+    image: darlankenobi/bankapp:1.0.2
 
     # Rode apontando para dockerfile
 #    build:
